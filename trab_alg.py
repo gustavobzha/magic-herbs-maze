@@ -19,8 +19,6 @@ def entries(matrix):
     
     for index, value in enumerate(matrix[len(matrix) - 1]): 
         if value != -1: 
-            
-            
             maze_entries[entry] = index 
             entry += 1 
     return maze_entries 
