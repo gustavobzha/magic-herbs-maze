@@ -1,111 +1,119 @@
-from numpy import array
+class Person:
+    def __init__(self, age, age_limit, entry_chosen):
+        self.age = age
+        self.age_limit = age_limit
+        self.entry_chosen = entry_chosen
+        self.age_catch = 0
+        self.position = []
+        self.path = ['N']
+        self.traveled = []
+        self.mission = ''
 
-def makematrix(matrix_lines,matrix_columns):
-    matrix_local = [] 
-    for lines in range(matrix_lines): 
-        line = [None] * matrix_columns 
-        matrix_local.append(line) 
-    return matrix_local 
+    def path_traveled(self, maze, entry_magic):
+        if not entry_magic == self.entry_chosen:
+            self.age += maze[self.position[0]][self.position[1]]
 
-def maze_matrix(matrix, matrix_lines, matrix_columns):
-    for line in range(matrix_lines): 
-        line_local = input().split() 
-        for column in range(matrix_columns): 
-            matrix[line][column] = line_local[column] 
-
-def entries(matrix):
-    entry = 1 
-    maze_entries = {} 
-    
-    for index, value in enumerate(matrix[len(matrix) - 1]): 
-        if value != -1: 
-            maze_entries[entry] = index 
-            entry += 1 
-    return maze_entries 
-
-def checkexit(matrix):
-    return position[0] == len(matrix) - 1
-
-def check_magic_herb(matrix, position, age, age_catch, save):
-    if matrix[position[0]][position[1]] == 0:
-        age_catch = age 
-        if age <= age_limit:
-            save += 'S' 
+        if self.position[0] == len(maze) - 1:
+            self.check_magic_herb(maze[self.position[0]][self.position[1]])
+            self.path.append('N')
+            self.traveled.extend([[self.position[0], self.position[1]]])
+            self.position.extend([self.position[0]-1, self.position[1]])
+            del self.position[0:2]
+        
         else:
-            save += 'N' 
-    return age_catch, save 
+            maze_up = maze[self.position[0]-1][self.position[1]]
+            maze_down = maze[self.position[0]+1][self.position[1]]
+            maze_left = maze[self.position[0]][self.position[1]-1]
+            maze_right = maze[self.position[0]][self.position[1]+1]
+            position_up = [self.position[0]-1, self.position[1]]
+            position_down = [self.position[0]+1, self.position[1]]
+            position_left = [self.position[0], self.position[1]-1]
+            position_right = [self.position[0], self.position[1]+1]
+            current_position = [self.position[0], self.position[1]]
 
-def route(matrix, position, path_traveled, age, age_limit, age_catch,
-          route_list,  entry_magic, entry_chosen, save):
-    if not entry_magic == entry_chosen: 
-        age += matrix[position[0]][position[1]] 
-    
-    if position[0] == len(matrix) - 1:
-        age_catch, save = check_magic_herb(matrix, position,
-                                           age, age_catch, save) 
-        route_list.append('N') 
-        path_traveled.extend([[position[0], position[1]]]) 
-        position.extend([position[0]-1, position[1]]) 
-        del position[0:2] 
-    
-    else:
-        up = matrix[position[0]-1][position[1]] 
-        down = matrix[position[0]+1][position[1]] 
-        left = matrix[position[0]][position[1]-1] 
-        right = matrix[position[0]][position[1]+1] 
-        
-        if up != -1 and [position[0]-1, position[1]] not in path_traveled:
-            route_list.append('N') 
-            path_traveled.extend([[position[0], position[1]]]) 
-            position.extend([position[0]-1, position[1]]) 
-            del position[0:2] 
-        
-        elif left != -1 and [position[0], position[1]-1] not in path_traveled:
-            route_list.append('O') 
-            path_traveled.extend([[position[0], position[1]]]) 
-            position.extend([position[0], position[1]-1]) 
-            del position[0:2] 
-        
-        elif right != -1 and [position[0], position[1]+1] not in path_traveled:
-            route_list.append('L') 
-            path_traveled.extend([[position[0], position[1]]]) 
-            position.extend([position[0], position[1]+1]) 
-            del position[0:2] 
-        
-        elif down != -1 and [position[0]+1, position[1]] not in path_traveled:
-            route_list.append('S') 
-            path_traveled.extend([[position[0], position[1]]]) 
-            position.extend([position[0]+1 , position[1]]) 
-            del position[0:2] 
+            if maze_up != -1 and position_up not in self.traveled:
+                self.path.append('N')
+                self.traveled.extend([current_position])
+                self.position.extend(position_up)
+                del self.position[0:2]
+                
+            elif maze_down != -1 and position_down not in self.traveled:
+                self.path.append('S')
+                self.traveled.extend([current_position])
+                self.position.extend(position_down)
+                del self.position[0:2]
 
-    age_catch, save = check_magic_herb(matrix, position, age, age_catch, save)
-    return age, age_catch, save
+            elif maze_left != -1 and position_left not in self.traveled:
+                self.path.append('O')
+                self.traveled.extend([current_position])
+                self.position.extend(position_left)
+                del self.position[0:2]
 
-cases = int(input()) 
+            elif maze_right != -1 and position_right not in self.traveled:
+                self.path.append('L')
+                self.traveled.extend([current_position])
+                self.position.extend(position_right)
+                del self.position[0:2]
 
-for case in range(cases):
-    age, age_limit = map(int, input().split()) 
-    entry_magic, entry_chosen = map(int, input().split()) 
-    lines, columns = map(int, input().split()) 
-    maze = makematrix(lines,columns) 
-    maze_matrix(maze, lines, columns) 
-    maze = array(maze, dtype = int) 
-    position = [len(maze) - 1, entries(maze)[entry_chosen]]
-    exit_maze = False 
-    route_list = ['N'] 
-    path_traveled = [] 
-    save = '' 
-    age_catch = 0 
-    
-    while not exit_maze: 
-        age, age_catch, save = route(maze, position, path_traveled, age,
-                                     age_limit, age_catch, route_list,
-                                     entry_magic, entry_chosen, save)
-        exit_maze = checkexit(maze) 
-    
-    if entry_magic != entry_chosen: 
-        age += maze[position[0]][position[1]] 
-    
-    route_list.append('S') 
-    print(*route_list) 
-    print(age, save, age_catch) 
+        self.check_magic_herb(maze[self.position[0]][self.position[1]])
+
+
+    def check_magic_herb(self, position):
+        if position == 0:
+            self.age_catch = self.age
+            if self.age <= self.age_limit:
+                self.mission = 'S'
+            else:
+                self.mission = 'N'
+
+
+class Maze:
+    def __init__(self, rows, columns, entry_magic):
+        self.rows = rows
+        self.columns = columns
+        self.entry_magic = entry_magic
+        self.map = []
+        self.maze_entries = {}
+
+    def build_maze(self):
+        for row in range(self.rows):
+            line = [None] * self.columns
+            self.map.append(line)
+
+        for row in range(self.rows):
+            local_row = input().split()
+            for column in range(self.columns):
+                self.map[row][column] = int(local_row[column])
+
+    def find_entries(self):
+        entry = 1
+        for index, value in enumerate(self.map[len(self.map) - 1]):
+            if value != -1:
+                self.maze_entries[entry] = index
+                entry += 1
+        return self.maze_entries
+
+def checkexit(maze, position):
+    return position[0] == len(maze) -1
+
+for case in range(int(input())):
+    age, age_limit = map(int, input().split())
+    entry_magic, entry_chosen = map(int, input().split())
+    rows, columns = map(int, input().split())
+
+    person1 = Person(age, age_limit, entry_chosen)
+    maze1 = Maze(rows, columns, entry_magic)
+
+    maze1.build_maze()
+    person1.position = [len(maze1.map) - 1, maze1.find_entries()[entry_chosen]]
+
+    while True:
+        person1.path_traveled(maze1.map, entry_magic)
+        if checkexit(maze1.map, person1.position): break
+
+    if entry_magic != entry_chosen:
+        person1.age += maze1.map[person1.position[0]][person1.position[1]]
+
+    person1.path.append('S')
+    print(*person1.path)
+    print(person1.age, person1.mission, person1.age_catch)
