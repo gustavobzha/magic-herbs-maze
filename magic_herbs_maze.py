@@ -16,9 +16,9 @@ class Person:
         if self.position[0] == len(maze) - 1:
             self.check_magic_herb(maze[self.position[0]][self.position[1]])
             self.path.append('N')
-            self.traveled.extend([[self.position[0], self.position[1]]])
-            self.position.extend([self.position[0]-1, self.position[1]])
-            del self.position[0:2]
+            current_position = [self.position[0], self.position[1]]
+            new_position = [self.position[0]-1, self.position[1]]
+            self.update_path(current_position, new_position)
         
         else:
             maze_up = maze[self.position[0]-1][self.position[1]]
@@ -33,30 +33,21 @@ class Person:
 
             if maze_up != -1 and position_up not in self.traveled:
                 self.path.append('N')
-                self.traveled.extend([current_position])
-                self.position.extend(position_up)
-                del self.position[0:2]
+                self.update_path(current_position, position_up)
                 
             elif maze_down != -1 and position_down not in self.traveled:
                 self.path.append('S')
-                self.traveled.extend([current_position])
-                self.position.extend(position_down)
-                del self.position[0:2]
+                self.update_path(current_position, position_down)
 
             elif maze_left != -1 and position_left not in self.traveled:
                 self.path.append('O')
-                self.traveled.extend([current_position])
-                self.position.extend(position_left)
-                del self.position[0:2]
+                self.update_path(current_position, position_left)
 
             elif maze_right != -1 and position_right not in self.traveled:
                 self.path.append('L')
-                self.traveled.extend([current_position])
-                self.position.extend(position_right)
-                del self.position[0:2]
-
+                self.update_path(current_position, position_right)
+                
         self.check_magic_herb(maze[self.position[0]][self.position[1]])
-
 
     def check_magic_herb(self, position):
         if position == 0:
@@ -66,6 +57,10 @@ class Person:
             else:
                 self.mission = 'N'
 
+    def update_path(self, current_pos, new_pos):
+        self.traveled.extend([current_pos])
+        self.position.extend(new_pos)
+        del self.position[0:2]
 
 class Maze:
     def __init__(self, rows, columns, entry_magic):
